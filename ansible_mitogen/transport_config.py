@@ -75,9 +75,16 @@ def parse_python_path(s):
     """
     Given the string set for ansible_python_interpeter, parse it using shell
     syntax and return an appropriate argument vector.
+
+    The check will look for an OS separator in the connection string. If no
+    separator is found the value of the string will be assumed to be a
+    templated variable and returned as-is
     """
     if s:
-        return ansible.utils.shlex.shlex_split(s)
+        if (os.sep in s) and ('{' not in s):
+            return ansible.utils.shlex.shlex_split(s)
+        else:
+            return s
 
 
 def optional_secret(value):
@@ -307,6 +314,12 @@ class Spec(with_metaclass(abc.ABCMeta, object)):
         """
 
     @abc.abstractmethod
+    def mitogen_python_interpreter(self):
+        """
+        Highest precedence variable for specifying the python path.
+        """
+
+    @abc.abstractmethod
     def extra_args(self):
         """
         Connection-specific arguments.
@@ -462,6 +475,11 @@ class PlayContextSpec(Spec):
 
     def mitogen_ssh_compression(self):
         return self._connection.get_task_var('mitogen_ssh_compression')
+
+    def mitogen_python_interpreter(self):
+        return parse_python_path(
+            self._connection.get_task_var('mitogen_python_interpreter')
+        )
 
     def extra_args(self):
         return self._connection.get_extra_args()
@@ -688,6 +706,11 @@ class MitogenViaSpec(Spec):
 
     def mitogen_ssh_compression(self):
         return self._host_vars.get('mitogen_ssh_compression')
+
+    def mitogen_python_interpreter(self):
+        return parse_python_path(
+            self._host_vars.get('mitogen_python_interpreter')
+        )
 
     def extra_args(self):
         return []  # TODO
