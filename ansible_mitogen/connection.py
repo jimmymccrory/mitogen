@@ -222,7 +222,10 @@ def _connect_docker(spec, templar=None):
         'method': 'docker',
         'kwargs': {
             'username': spec.remote_user(),
-            'container': spec.remote_addr(),
+            'container': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'python_path': _get_python_path(
                 spec=spec,
                 templar=templar,
@@ -241,7 +244,10 @@ def _connect_kubectl(spec, templar=None):
     return {
         'method': 'kubectl',
         'kwargs': {
-            'pod': spec.remote_addr(),
+            'pod': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'python_path': _get_python_path(
                 spec=spec,
                 templar=templar,
@@ -263,7 +269,10 @@ def _connect_jail(spec, templar=None):
         'method': 'jail',
         'kwargs': {
             'username': spec.remote_user(),
-            'container': spec.remote_addr(),
+            'container': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'python_path': _get_python_path(
                 spec=spec,
                 templar=templar,
@@ -282,7 +291,10 @@ def _connect_lxc(spec, templar=None):
     return {
         'method': 'lxc',
         'kwargs': {
-            'container': spec.remote_addr(),
+            'container': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'python_path': _get_python_path(
                 spec=spec,
                 templar=templar,
@@ -302,7 +314,10 @@ def _connect_lxd(spec, templar=None):
     return {
         'method': 'lxd',
         'kwargs': {
-            'container': spec.remote_addr(),
+            'container': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'python_path': _get_python_path(
                 spec=spec,
                 templar=templar,
@@ -329,7 +344,10 @@ def _connect_setns(spec, kind=None, templar=None):
     return {
         'method': 'setns',
         'kwargs': {
-            'container': spec.remote_addr(),
+            'container': (
+                spec.mitogen_container_name() or
+                spec.remote_addr()
+            ),
             'username': spec.remote_user(),
             'python_path': _get_python_path(
                 spec=spec,
